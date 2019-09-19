@@ -11,6 +11,9 @@ from keras.datasets import mnist
 # load data from mnist
 (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
 
+# the labels are numbers from 0-9
+class_labels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
 # make sure our data is from 0 to 1
 train_images = train_images / 255.0
 test_images = test_images / 255.0
@@ -29,7 +32,7 @@ for i in range(25):
   plt.yticks([])
   plt.grid(False)
   plt.imshow(train_images[i], cmap=plt.cm.binary)
-  plt.xlabel(train_labels[i])
+  plt.xlabel(class_labels[train_labels[i]])
 
 #%%
 # build, compile and train the model
@@ -70,15 +73,15 @@ def plot_image(i, predictions_array, true_label, img):
   else:
     color = 'red'
   
-  plt.xlabel("{} {:2.0f}% ({})".format(predicted_label,
+  plt.xlabel("Predicted:{} {:2.0f}% Actual:({})".format(class_labels[predicted_label],
                                 100*numpy.max(predictions_array),
-                                true_label),
+                                class_labels[true_label]),
                                 color=color)
 
 def plot_value_array(i, predictions_array, true_label):
   predictions_array, true_label = predictions_array[i], true_label[i]
   plt.grid(False)
-  plt.xticks([])
+  plt.xticks(range(10), class_labels)
   plt.yticks([])
   thisplot = plt.bar(range(10), predictions_array, color="#777777")
   plt.ylim([0, 1])
@@ -99,5 +102,23 @@ for i in range(num_images):
   plt.subplot(num_rows, 2*num_cols, 2*i+2)
   plot_value_array(i, predictions, test_labels)
 plt.show()
+
+#%%
+# Get an image from our test data
+img = test_images[0]
+
+# Add the image to a batch where it is the only member
+img = (numpy.expand_dims(img,0))
+
+predictions_single = model.predict(img)
+
+# Plot a graph of the prediction
+plot_value_array(0, predictions_single, test_labels)
+plt.title("Prediction")
+plt.xticks(range(10), class_labels)
+plt.show()
+
+prediction_result = numpy.argmax(predictions_single[0])
+print('Actual:', prediction_result)
 
 #%%
